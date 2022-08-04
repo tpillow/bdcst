@@ -47,7 +47,6 @@ func (broadcaster *Broadcaster[T]) RemoveListener(l Listener[T]) {
 
 	for idx, check := range broadcaster.listeners {
 		if check == l {
-			// TODO: validate this
 			broadcaster.listeners = append(broadcaster.listeners[:idx], broadcaster.listeners[idx+1:]...)
 			return
 		}
