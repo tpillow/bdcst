@@ -16,7 +16,7 @@ func TestBroadcasterCallbackListener(t *testing.T) {
 	br := NewBroadcaster[int]()
 	br.Send(10)
 	complete := make(chan int, 1)
-	br.AddListener(CallbackListener[int](func(data int) {
+	br.AddListener(NewCallbackListener(func(data int) {
 		complete <- data
 	}))
 	br.Send(20)
@@ -27,7 +27,7 @@ func TestBroadcasterChannelListener(t *testing.T) {
 	br := NewBroadcaster[int]()
 	br.Send(10)
 	complete := make(chan int, 1)
-	br.AddListener(ChannelListener[int](complete))
+	br.AddListener(NewChannelListener(complete))
 	br.Send(20)
 	assert.Equal(t, 20, <-complete)
 }
@@ -36,10 +36,10 @@ func TestBroadcasterCallbackAndChannelListener(t *testing.T) {
 	br := NewBroadcaster[int]()
 	fComplete := make(chan int, 1)
 	cComplete := make(chan int, 1)
-	br.AddListener(CallbackListener[int](func(data int) {
+	br.AddListener(NewCallbackListener(func(data int) {
 		fComplete <- data
 	}))
-	br.AddListener(ChannelListener[int](cComplete))
+	br.AddListener(NewChannelListener(cComplete))
 	br.Send(10)
 	assert.Equal(t, 10, <-fComplete)
 	assert.Equal(t, 10, <-cComplete)
@@ -51,18 +51,33 @@ func TestBroadcasterCallbackAndChannelListener(t *testing.T) {
 func TestBroadcasterRemoveInvalidListener(t *testing.T) {
 	br := NewBroadcaster[int]()
 	assert.Panics(t, func() {
-		br.RemoveListener(CallbackListener[int](func(data int) {}))
+		br.RemoveListener(NewCallbackListener(func(data int) {}))
 	})
 }
 
-func TestBroadcasterTwoListenersRemoveOne(t *testing.T) {
+func TestBroadcasterRemoveCallbackListener(t *testing.T) {
+	br := NewBroadcaster[int]()
+	complete := make(chan int, 1)
+	cbl := NewCallbackListener(func(data int) {
+		complete <- data
+	})
+	br.AddListener(cbl)
+	assert.Equal(t, 1, br.NumListeners())
+	br.Send(10)
+	assert.Equal(t, 10, <-complete)
+
+	br.RemoveListener(cbl)
+	assert.Equal(t, 0, br.NumListeners())
+}
+
+func TestBroadcasterTwoListenersRemoveChannelListener(t *testing.T) {
 	br := NewBroadcaster[int]()
 	complete := make(chan int, 1)
 	complete2 := make(chan int, 1)
-	listener := ChannelListener[int](complete)
+	listener := NewChannelListener(complete)
 	br.AddListener(listener)
 	assert.Equal(t, 1, len(br.listeners))
-	br.AddListener(ChannelListener[int](complete2))
+	br.AddListener(NewChannelListener(complete2))
 	assert.Equal(t, 2, len(br.listeners))
 	br.Send(10)
 	assert.Equal(t, 10, <-complete)
