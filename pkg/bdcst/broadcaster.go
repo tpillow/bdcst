@@ -5,6 +5,7 @@ import (
 	"sync"
 )
 
+// IBroadcaster provides an interface to add and remove listeners and send data to listeners.
 type IBroadcaster[T any] interface {
 	Send(data T)
 	NumListeners() int
@@ -12,19 +13,24 @@ type IBroadcaster[T any] interface {
 	RemoveListener(l Listener[T])
 }
 
+// Broadcaster is the most basic IBroadcaster implementation.
 type Broadcaster[T any] struct {
 	mutex     sync.Mutex
 	listeners []Listener[T]
 }
 
+// NewBroadcaster creates a Broadcaster for use.
 func NewBroadcaster[T any]() *Broadcaster[T] {
 	return &Broadcaster[T]{}
 }
 
+// NumListeners returns the number of added listeners.
 func (broadcaster *Broadcaster[T]) NumListeners() int {
 	return len(broadcaster.listeners)
 }
 
+// Send calls notify of every Listener with data in the order that the
+// listeners were added.
 func (broadcaster *Broadcaster[T]) Send(data T) {
 	broadcaster.mutex.Lock()
 	defer broadcaster.mutex.Unlock()
@@ -34,6 +40,8 @@ func (broadcaster *Broadcaster[T]) Send(data T) {
 	}
 }
 
+// AddListener adds the listener l to the broadcaster, and will then be
+// notified of future Send events.
 func (broadcaster *Broadcaster[T]) AddListener(l Listener[T]) {
 	broadcaster.mutex.Lock()
 	defer broadcaster.mutex.Unlock()
@@ -41,6 +49,8 @@ func (broadcaster *Broadcaster[T]) AddListener(l Listener[T]) {
 	broadcaster.listeners = append(broadcaster.listeners, l)
 }
 
+// RemoveListener removes the listener l from the broadcaster, and will no longer be
+// notified of future Send events. If the listener l is not added, a panic will occur.
 func (broadcaster *Broadcaster[T]) RemoveListener(l Listener[T]) {
 	broadcaster.mutex.Lock()
 	defer broadcaster.mutex.Unlock()
@@ -52,5 +62,5 @@ func (broadcaster *Broadcaster[T]) RemoveListener(l Listener[T]) {
 		}
 	}
 
-	log.Panicf("Cannot remove unregistered listener: %v", l)
+	log.Panicf("Cannot remove unadded listener: %v", l)
 }
