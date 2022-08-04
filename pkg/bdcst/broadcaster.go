@@ -5,11 +5,6 @@ import (
 	"sync"
 )
 
-type IBroadcastable[T any] interface {
-	Send(data T)
-	NumListeners() int
-}
-
 type IBroadcaster[T any] interface {
 	Send(data T)
 	NumListeners() int
