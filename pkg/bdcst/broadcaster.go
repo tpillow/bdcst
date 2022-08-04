@@ -13,7 +13,8 @@ type IBroadcaster[T any] interface {
 	RemoveListener(l Listener[T])
 }
 
-// Broadcaster is the most basic IBroadcaster implementation.
+// Broadcaster is the most basic IBroadcaster implementation. Use Send to notify all added
+// listeners of data. All Broadcaster operations lock a mutex before operation.
 type Broadcaster[T any] struct {
 	mutex     sync.Mutex
 	listeners []Listener[T]
