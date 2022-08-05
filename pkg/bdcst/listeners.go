@@ -1,7 +1,7 @@
 package bdcst
 
-// Listener represents an entity that can notify something of sent data of type T.
-type Listener[T any] interface {
+// IListener represents an entity that can notify something of sent data of type T.
+type IListener[T any] interface {
 	notify(data T)
 }
 

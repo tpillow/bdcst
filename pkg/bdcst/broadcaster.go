@@ -9,15 +9,15 @@ import (
 type IBroadcaster[T any] interface {
 	Send(data T)
 	NumListeners() int
-	AddListener(l Listener[T])
-	RemoveListener(l Listener[T])
+	AddListener(l IListener[T])
+	RemoveListener(l IListener[T])
 }
 
 // Broadcaster is the most basic IBroadcaster implementation. Use Send to notify all added
 // listeners of data. All Broadcaster operations lock a mutex before operation.
 type Broadcaster[T any] struct {
 	mutex     sync.Mutex
-	listeners []Listener[T]
+	listeners []IListener[T]
 }
 
 // NewBroadcaster creates a Broadcaster for use.
@@ -43,7 +43,7 @@ func (broadcaster *Broadcaster[T]) Send(data T) {
 
 // AddListener adds the listener l to the broadcaster, and will then be
 // notified of future Send events.
-func (broadcaster *Broadcaster[T]) AddListener(l Listener[T]) {
+func (broadcaster *Broadcaster[T]) AddListener(l IListener[T]) {
 	broadcaster.mutex.Lock()
 	defer broadcaster.mutex.Unlock()
 
@@ -52,7 +52,7 @@ func (broadcaster *Broadcaster[T]) AddListener(l Listener[T]) {
 
 // RemoveListener removes the listener l from the broadcaster, and will no longer be
 // notified of future Send events. If the listener l is not added, a panic will occur.
-func (broadcaster *Broadcaster[T]) RemoveListener(l Listener[T]) {
+func (broadcaster *Broadcaster[T]) RemoveListener(l IListener[T]) {
 	broadcaster.mutex.Lock()
 	defer broadcaster.mutex.Unlock()
 
