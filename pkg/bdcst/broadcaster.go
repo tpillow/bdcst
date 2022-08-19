@@ -10,8 +10,8 @@ type Broadcaster[T any] struct {
 	listeners []Listener[T]
 }
 
-func NewBroadcaster[T any]() *Broadcaster[T] {
-	return &Broadcaster[T]{}
+func NewBroadcaster[T any](listeners ...Listener[T]) *Broadcaster[T] {
+	return &Broadcaster[T]{listeners: listeners}
 }
 
 func (broadcaster *Broadcaster[T]) Notify(data T) {

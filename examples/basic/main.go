@@ -20,7 +20,7 @@ func main() {
 	listener2 := bdcst.NewCallbackListener(myCallbackFunc2)
 
 	broadcaster.AddListener(listener2)
-	broadcaster.Send("Hello")
+	broadcaster.Notify("Hello")
 	broadcaster.RemoveListener(listener2)
-	broadcaster.Send("World!")
+	broadcaster.Notify("World!")
 }
