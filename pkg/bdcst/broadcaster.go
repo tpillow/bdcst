@@ -23,7 +23,10 @@ func NewBroadcaster[T any](listeners ...Listener[T]) *Broadcaster[T] {
 func (broadcaster *Broadcaster[T]) Notify(data T) {
 	broadcaster.mutex.Lock()
 	defer broadcaster.mutex.Unlock()
+	broadcaster.notifyNoLock(data)
+}
 
+func (broadcaster *Broadcaster[T]) notifyNoLock(data T) {
 	for _, l := range broadcaster.listeners {
 		l.OnNotify(data)
 	}
